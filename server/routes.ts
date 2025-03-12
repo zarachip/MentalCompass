@@ -152,33 +152,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Mood not found" });
       }
       
-      // Get recommendations from OpenAI
-      const recommendations = await openai.getActivityRecommendations(
-        mood.sentiment,
-        mood.text
-      );
-      
-      // Store recommendations
-      const activities = [];
-      for (const rec of recommendations) {
-        const activity = await storage.createActivity({
-          emoji: rec.emoji,
-          title: rec.title,
-          description: rec.description,
-          category: getCategoryFromMood(mood.sentiment),
-        });
-        activities.push(activity);
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        console.error("OpenAI API key is not set");
+        return res.status(500).json({ error: "OpenAI API key is missing" });
       }
       
-      // Store recommendation group
-      const activityIds = activities.map(a => a.id);
-      await storage.createActivityRecommendation({
-        userId: 1,
-        moodId,
-        activityIds,
-      });
-      
-      return res.json({ activities });
+      try {
+        // Get recommendations from OpenAI
+        const recommendations = await openai.getActivityRecommendations(
+          mood.sentiment,
+          mood.text
+        );
+        
+        // Store recommendations
+        const activities = [];
+        for (const rec of recommendations) {
+          const activity = await storage.createActivity({
+            emoji: rec.emoji,
+            title: rec.title,
+            description: rec.description,
+            category: getCategoryFromMood(mood.sentiment),
+          });
+          activities.push(activity);
+        }
+        
+        // Store recommendation group
+        const activityIds = activities.map(a => a.id);
+        await storage.createActivityRecommendation({
+          userId: 1,
+          moodId,
+          activityIds,
+        });
+        
+        return res.json({ activities });
+      } catch (openaiError: any) {
+        console.error("OpenAI API error:", openaiError.message);
+        
+        // Create fallback activity recommendations based on mood
+        const fallbackActivities = [];
+        const category = getCategoryFromMood(mood.sentiment);
+        
+        // Default recommendations based on mood sentiment
+        const defaultRecs = [
+          { emoji: "🧘‍♀️", title: "5-Minute Meditation", description: "A quick mindfulness break to center yourself." },
+          { emoji: "🚶‍♂️", title: "Walk Outside", description: "Fresh air and movement can help shift your perspective." },
+          { emoji: "🎵", title: "Listen to Music", description: "Music can effectively change your emotional state." },
+          { emoji: "📝", title: "Journal Your Thoughts", description: "Writing helps process emotions and gain clarity." }
+        ];
+        
+        for (const rec of defaultRecs) {
+          const activity = await storage.createActivity({
+            emoji: rec.emoji,
+            title: rec.title,
+            description: rec.description,
+            category,
+          });
+          fallbackActivities.push(activity);
+        }
+        
+        // Store recommendation group
+        const activityIds = fallbackActivities.map(a => a.id);
+        await storage.createActivityRecommendation({
+          userId: 1,
+          moodId,
+          activityIds,
+        });
+        
+        return res.json({ 
+          activities: fallbackActivities,
+          error: openaiError.message 
+        });
+      }
     } catch (error: any) {
       console.error("Error getting recommendations:", error.message);
       return res.status(500).json({ error: "Failed to get activity recommendations" });

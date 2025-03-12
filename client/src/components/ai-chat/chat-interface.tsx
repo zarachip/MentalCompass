@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Message } from "@/types";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { MessageCircle, Send } from "lucide-react";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -49,7 +50,7 @@ export function ChatInterface({ messages, onSendMessage, isLoading }: ChatInterf
         {messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-neutral-400">
             <div className="text-center">
-              <i className="ri-chat-smile-2-line text-4xl mb-2"></i>
+              <MessageCircle className="w-12 h-12 mx-auto mb-2" />
               <p>Start a conversation with MoodMate AI</p>
             </div>
           </div>
@@ -107,7 +108,7 @@ export function ChatInterface({ messages, onSendMessage, isLoading }: ChatInterf
             disabled={!newMessage.trim() || isLoading}
             className="ml-3 bg-primary hover:bg-primary/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all"
           >
-            <i className="ri-send-plane-fill"></i>
+            <Send className="h-5 w-5" />
           </Button>
         </form>
       </div>

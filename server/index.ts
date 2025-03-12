@@ -2,6 +2,26 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Verify and log OpenAI API key status
+function verifyAPIKey() {
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("WARNING: OPENAI_API_KEY environment variable is not set");
+    return false;
+  } else if (process.env.OPENAI_API_KEY.length < 40) {
+    console.error("WARNING: OPENAI_API_KEY appears to be invalid (too short)");
+    return false;
+  } else if (!process.env.OPENAI_API_KEY.startsWith('sk-')) {
+    console.error("WARNING: OPENAI_API_KEY appears to be invalid (should start with 'sk-')");
+    return false;
+  }
+  
+  console.log("OpenAI API key is valid and ready to use");
+  return true;
+}
+
+// Check API key
+verifyAPIKey();
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
