@@ -16,11 +16,6 @@ export async function getCompletedActivities(): Promise<{ completions: ActivityC
   return await response.json();
 }
 
-export async function getActivities(): Promise<{ activities: Activity[] }> {
-  const response = await apiRequest("GET", "/api/activities");
-  return await response.json();
-}
-
 export function getMoodEmoji(mood: string): string {
   switch (mood) {
     case "happy":

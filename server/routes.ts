@@ -238,17 +238,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ error: "Failed to get completed activities" });
     }
   });
-  
-  // Get all activities
-  app.get("/api/activities", async (req, res) => {
-    try {
-      const activities = await storage.getActivities();
-      return res.json({ activities });
-    } catch (error: any) {
-      console.error("Error getting activities:", error.message);
-      return res.status(500).json({ error: "Failed to get activities" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
