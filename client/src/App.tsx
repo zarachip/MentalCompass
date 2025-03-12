@@ -1,5 +1,5 @@
-
 import { Switch, Route, useLocation } from "wouter";
+import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
@@ -10,7 +10,6 @@ import AIChat from "@/pages/ai-chat";
 import MoodBooster from "@/pages/mood-booster";
 import Dashboard from "@/pages/dashboard";
 import Landing from "@/pages/landing";
-import { queryClient } from "./lib/queryClient";
 
 function App() {
   const [location] = useLocation();
@@ -18,23 +17,29 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen flex flex-col">
+      <div className="flex flex-col min-h-screen">
         {!isLandingPage && <Header />}
+        {!isLandingPage && <TabNavigation />}
         
-        <main className={`flex-1 ${!isLandingPage ? 'container mx-auto py-6 px-4' : ''}`}>
+        <main className={!isLandingPage ? "flex-1 container mx-auto px-4 py-6" : "flex-1"}>
           <Switch>
             <Route path="/" component={Landing} />
             <Route path="/mood-detector" component={MoodDetector} />
-            <Route path="/ai-chat" component={AIChat} />
-            <Route path="/mood-booster" component={MoodBooster} />
+            <Route path="/chat" component={AIChat} />
+            <Route path="/activities" component={MoodBooster} />
             <Route path="/dashboard" component={Dashboard} />
             <Route component={NotFound} />
           </Switch>
         </main>
         
-        {!isLandingPage && <TabNavigation />}
+        {!isLandingPage && (
+          <div className="fixed bottom-6 right-6">
+            <button className="bg-primary hover:bg-primary/90 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all">
+              <i className="ri-add-line text-2xl"></i>
+            </button>
+          </div>
+        )}
       </div>
-      
       <Toaster />
     </QueryClientProvider>
   );

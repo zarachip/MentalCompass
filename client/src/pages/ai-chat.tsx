@@ -53,24 +53,3 @@ export default function AIChat() {
     </motion.div>
   );
 }
-import { motion } from "framer-motion";
-import { ChatInterface } from "@/components/ai-chat/ChatInterface";
-
-export default function AIChat() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="animate-fade-in"
-    >
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-neutral-900">Chat with MoodMate</h2>
-        <p className="text-muted-foreground">
-          Express yourself freely. I'm here to listen, support, and offer guidance.
-        </p>
-      </div>
-      
-      <ChatInterface />
-    </motion.div>
-  );
-}

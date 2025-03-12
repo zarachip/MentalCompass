@@ -1,7 +1,6 @@
-
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { MoveRight } from "lucide-react";
+import { Link } from "wouter";
+import { MoveRight, HeartPulse, Brain, Sparkles, Activity } from "lucide-react";
 
 export default function Landing() {
   return (
@@ -31,6 +30,50 @@ export default function Landing() {
                 View Dashboard
               </Button>
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="py-16 px-6 bg-muted/50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-background rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                <Brain className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Mood Detection</h3>
+              <p className="text-muted-foreground">
+                Express how you're feeling and receive AI-powered analysis of your mood, 
+                with personalized insights and emotional tracking.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-background rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                <HeartPulse className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">AI Companion</h3>
+              <p className="text-muted-foreground">
+                Chat with an empathetic AI assistant that provides supportive conversation,
+                guidance, and a judgment-free space to express yourself.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-background rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                <Activity className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Activity Recommendations</h3>
+              <p className="text-muted-foreground">
+                Discover personalized activities tailored to your current mood and 
+                mental state, designed to improve your wellbeing.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -69,54 +112,10 @@ export default function Landing() {
               <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-background font-bold text-lg mb-4">
                 3
               </div>
-              <h3 className="text-xl font-semibold mb-2">Discover Activities</h3>
+              <h3 className="text-xl font-semibold mb-2">Take Action</h3>
               <p className="text-muted-foreground">
-                Try personalized recommendations to improve your mood,
-                from meditation to creative exercises.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="py-16 px-6 bg-muted/50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-background p-6 rounded-lg shadow-sm">
-              <div className="text-3xl mb-4">😊</div>
-              <h3 className="text-xl font-semibold mb-2">Mood Analysis</h3>
-              <p className="text-muted-foreground">
-                Advanced AI analyzes your mood based on your text inputs.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-background p-6 rounded-lg shadow-sm">
-              <div className="text-3xl mb-4">💬</div>
-              <h3 className="text-xl font-semibold mb-2">AI Companion</h3>
-              <p className="text-muted-foreground">
-                24/7 supportive conversation with our empathetic AI assistant.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-background p-6 rounded-lg shadow-sm">
-              <div className="text-3xl mb-4">🧘</div>
-              <h3 className="text-xl font-semibold mb-2">Activity Suggestions</h3>
-              <p className="text-muted-foreground">
-                Personalized recommendations based on your emotional state.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-background p-6 rounded-lg shadow-sm">
-              <div className="text-3xl mb-4">📊</div>
-              <h3 className="text-xl font-semibold mb-2">Mood Tracking</h3>
-              <p className="text-muted-foreground">
-                Visualize your emotional patterns over time with detailed insights.
+                Try the recommended activities designed to boost your mood and 
+                track your progress over time in the dashboard.
               </p>
             </div>
           </div>
@@ -124,15 +123,16 @@ export default function Landing() {
       </div>
 
       {/* CTA Section */}
-      <div className="py-16 px-6 bg-primary text-primary-foreground">
+      <div className="py-16 px-6 bg-primary/10">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to improve your mental wellbeing?</h2>
-          <p className="text-lg mb-8 opacity-90">
-            Join thousands of users who are already experiencing the benefits of MoodMate.
+          <h2 className="text-3xl font-bold mb-4">Start Your Wellness Journey Today</h2>
+          <p className="text-lg text-muted-foreground mb-8">
+            MoodMate is here to support your mental wellbeing with personalized
+            insights and activities tailored just for you.
           </p>
           <Link href="/mood-detector">
-            <Button size="lg" variant="secondary" className="px-8">
-              Get Started Now
+            <Button size="lg" className="px-8">
+              Begin Now <Sparkles className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
