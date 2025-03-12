@@ -239,6 +239,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get music recommendations based on mood
+  app.post("/api/music/recommendations", async (req, res) => {
+    try {
+      const { moodId } = req.body;
+      
+      if (!moodId) {
+        return res.status(400).json({ error: "Mood ID is required" });
+      }
+
+      // Get mood data
+      const mood = await storage.getMood(moodId);
+      if (!mood) {
+        return res.status(404).json({ error: "Mood not found" });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        console.error("OpenAI API key is not set");
+        
+        // Get music tracks based on the mood without AI
+        const tracks = await storage.getMusicTracksByMood(mood.sentiment);
+        
+        // Create music recommendation entry
+        const trackIds = tracks.map(track => track.id);
+        await storage.createMusicRecommendation({
+          userId: 1,
+          moodId,
+          trackIds,
+        });
+        
+        return res.json({ tracks });
+      }
+      
+      try {
+        // Get recommendations from OpenAI
+        const recommendations = await openai.getMusicRecommendations(
+          mood.sentiment,
+          mood.text
+        );
+        
+        // Store recommended tracks
+        const tracks = [];
+        for (const rec of recommendations) {
+          const track = await storage.createMusicTrack({
+            title: rec.title,
+            artist: rec.artist,
+            genre: rec.genre,
+            mood: rec.mood,
+            imageUrl: null, // Would need an API to get real images
+            externalUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(rec.title + ' ' + rec.artist)}`
+          });
+          tracks.push(track);
+        }
+        
+        // Store recommendation group
+        const trackIds = tracks.map(t => t.id);
+        await storage.createMusicRecommendation({
+          userId: 1,
+          moodId,
+          trackIds,
+        });
+        
+        return res.json({ tracks });
+      } catch (openaiError: any) {
+        console.error("OpenAI API error:", openaiError.message);
+        
+        // Get music tracks based on the mood as fallback
+        const tracks = await storage.getMusicTracksByMood(mood.sentiment);
+        
+        // Create music recommendation entry
+        const trackIds = tracks.map(track => track.id);
+        await storage.createMusicRecommendation({
+          userId: 1,
+          moodId,
+          trackIds,
+        });
+        
+        return res.json({ tracks, error: openaiError.message });
+      }
+    } catch (error: any) {
+      console.error("Error getting music recommendations:", error.message);
+      return res.status(500).json({ error: "Failed to get music recommendations" });
+    }
+  });
+  
+  // Get all music tracks
+  app.get("/api/music/tracks", async (req, res) => {
+    try {
+      const tracks = await storage.getAllMusicTracks();
+      return res.json({ tracks });
+    } catch (error: any) {
+      console.error("Error getting music tracks:", error.message);
+      return res.status(500).json({ error: "Failed to get music tracks" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

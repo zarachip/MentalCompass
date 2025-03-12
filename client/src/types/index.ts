@@ -40,6 +40,16 @@ export interface ActivityWithCompletion extends Activity {
   completedAt?: string;
 }
 
+export interface MusicTrack {
+  id: number;
+  title: string;
+  artist: string;
+  genre: string;
+  mood: string;
+  imageUrl?: string | null;
+  externalUrl?: string | null;
+}
+
 export interface MoodAnalysisResponse {
   mood: Mood;
   keywords: string[];
@@ -51,6 +61,10 @@ export interface ChatResponse {
 
 export interface ActivityRecommendationsResponse {
   activities: Activity[];
+}
+
+export interface MusicRecommendationsResponse {
+  tracks: MusicTrack[];
 }
 
 // UI related types
