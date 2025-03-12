@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { TabItem } from "@/types";
 
 const tabs: TabItem[] = [
-  { id: "/", label: "Mood Detector", icon: "ri-emotion-line" },
+  { id: "/mood-detector", label: "Mood Detector", icon: "ri-emotion-line" },
   { id: "/chat", label: "AI Chat", icon: "ri-message-3-line" },
   { id: "/activities", label: "Mood Booster", icon: "ri-heart-pulse-line" },
   { id: "/dashboard", label: "Dashboard", icon: "ri-bar-chart-box-line" },
