@@ -18,22 +18,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!text || typeof text !== "string") {
         return res.status(400).json({ error: "Text is required" });
       }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        console.error("OpenAI API key is not set");
+        return res.status(500).json({ error: "OpenAI API key is missing" });
+      }
 
-      const result = await openai.analyzeSentiment(text);
-      
-      // Store mood in database (with dummy userId for now)
-      const mood = await storage.createMood({
-        userId: 1, // Using default user ID since we don't have auth yet
-        text,
-        sentiment: result.sentiment,
-        score: result.score,
-        analysis: result.analysis,
-      });
-      
-      return res.json({
-        mood,
-        keywords: result.keywords
-      });
+      try {
+        const result = await openai.analyzeSentiment(text);
+        
+        // Store mood in database (with dummy userId for now)
+        const mood = await storage.createMood({
+          userId: 1, // Using default user ID since we don't have auth yet
+          text,
+          sentiment: result.sentiment,
+          score: result.score,
+          analysis: result.analysis,
+        });
+        
+        return res.json({
+          mood,
+          keywords: result.keywords
+        });
+      } catch (openaiError: any) {
+        console.error("OpenAI API error:", openaiError.message);
+        
+        // Create a fallback mood analysis for UI to display
+        const mood = await storage.createMood({
+          userId: 1,
+          text,
+          sentiment: "neutral",
+          score: 3,
+          analysis: "I'm having trouble analyzing your mood right now. Please try again later.",
+        });
+        
+        return res.json({
+          mood,
+          keywords: ["mood", "analysis", "unavailable"],
+          error: openaiError.message
+        });
+      }
     } catch (error: any) {
       console.error("Error analyzing mood:", error.message);
       return res.status(500).json({ error: "Failed to analyze mood" });
@@ -47,6 +72,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!message || typeof message !== "string") {
         return res.status(400).json({ error: "Message is required" });
+      }
+      
+      // Check if OpenAI API key is set
+      if (!process.env.OPENAI_API_KEY) {
+        console.error("OpenAI API key is not set");
+        return res.status(500).json({ error: "OpenAI API key is missing" });
       }
       
       // Store user message
@@ -71,19 +102,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         chatHistory.push({ role: "user", content: message });
       }
       
-      // Get response from OpenAI
-      const response = await openai.getChatResponse(chatHistory);
-      
-      // Store AI response
-      const aiMessage = await storage.createMessage({
-        userId: 1,
-        content: response,
-        isUser: false,
-      });
-      
-      return res.json({
-        message: aiMessage
-      });
+      try {
+        // Get response from OpenAI
+        const response = await openai.getChatResponse(chatHistory);
+        
+        // Store AI response
+        const aiMessage = await storage.createMessage({
+          userId: 1,
+          content: response,
+          isUser: false,
+        });
+        
+        return res.json({
+          message: aiMessage
+        });
+      } catch (openaiError: any) {
+        console.error("OpenAI API error:", openaiError.message);
+        
+        // Store error message
+        const errorMessage = await storage.createMessage({
+          userId: 1,
+          content: "I'm having trouble connecting to my AI brain right now. Please try again later.",
+          isUser: false,
+        });
+        
+        return res.json({
+          message: errorMessage,
+          error: openaiError.message
+        });
+      }
     } catch (error: any) {
       console.error("Error in chat:", error.message);
       return res.status(500).json({ error: "Failed to process chat message" });
