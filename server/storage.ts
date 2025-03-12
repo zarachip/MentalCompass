@@ -108,8 +108,12 @@ export class MemStorage implements IStorage {
   async createMood(moodData: InsertMood): Promise<Mood> {
     const id = this.moodIdCounter++;
     const mood: Mood = {
-      ...moodData,
       id,
+      userId: moodData.userId || null,
+      text: moodData.text,
+      sentiment: moodData.sentiment,
+      score: moodData.score,
+      analysis: moodData.analysis || null,
       createdAt: new Date()
     };
     this.moods.set(id, mood);
@@ -130,8 +134,10 @@ export class MemStorage implements IStorage {
   async createMessage(messageData: InsertMessage): Promise<Message> {
     const id = this.messageIdCounter++;
     const message: Message = {
-      ...messageData,
       id,
+      userId: messageData.userId || null,
+      content: messageData.content,
+      isUser: messageData.isUser,
       createdAt: new Date()
     };
     this.messages.set(id, message);
@@ -171,8 +177,9 @@ export class MemStorage implements IStorage {
   async createActivityCompletion(completionData: InsertActivityCompletion): Promise<ActivityCompletion> {
     const id = this.activityCompletionIdCounter++;
     const completion: ActivityCompletion = {
-      ...completionData,
       id,
+      userId: completionData.userId || null,
+      activityId: completionData.activityId || null,
       completedAt: new Date()
     };
     this.activityCompletions.set(id, completion);
@@ -193,8 +200,10 @@ export class MemStorage implements IStorage {
   async createActivityRecommendation(recommendationData: InsertActivityRecommendation): Promise<ActivityRecommendation> {
     const id = this.activityRecommendationIdCounter++;
     const recommendation: ActivityRecommendation = {
-      ...recommendationData,
       id,
+      userId: recommendationData.userId || null,
+      moodId: recommendationData.moodId || null,
+      activityIds: recommendationData.activityIds || [],
       createdAt: new Date()
     };
     this.activityRecommendations.set(id, recommendation);
