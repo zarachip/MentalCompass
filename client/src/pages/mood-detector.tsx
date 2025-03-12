@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { MoodInputCard } from "@/components/mood-detector/mood-input-card";
 import { MoodResultCard } from "@/components/mood-detector/mood-result-card";
 import { RecommendationsCard } from "@/components/mood-detector/recommendations-card";
-import { MusicRecommendationsCard } from "@/components/mood-detector/music-recommendations-card";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import openaiService from "@/lib/openai-service";
-import { MoodWithKeywords, Activity, MusicTrack } from "@/types";
+import { MoodWithKeywords, Activity } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
@@ -23,11 +22,8 @@ export default function MoodDetector() {
         keywords: data.keywords
       });
       
-      // Get activity recommendations for this mood
-      activityRecommendationsMutation.mutate(data.mood.id);
-      
-      // Get music recommendations for this mood
-      musicRecommendationsMutation.mutate(data.mood.id);
+      // Get recommendations for this mood
+      recommendationsMutation.mutate(data.mood.id);
     },
     onError: () => {
       toast({
@@ -38,14 +34,9 @@ export default function MoodDetector() {
     }
   });
   
-  // Mutation for getting activity recommendations
-  const activityRecommendationsMutation = useMutation({
+  // Mutation for getting recommendations
+  const recommendationsMutation = useMutation({
     mutationFn: openaiService.getActivityRecommendations,
-  });
-  
-  // Mutation for getting music recommendations
-  const musicRecommendationsMutation = useMutation({
-    mutationFn: openaiService.getMusicRecommendations,
   });
   
   const handleAnalyzeMood = (text: string) => {
@@ -72,17 +63,10 @@ export default function MoodDetector() {
         <>
           <MoodResultCard mood={currentMood} />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-            <RecommendationsCard 
-              activities={(activityRecommendationsMutation.data?.activities as Activity[]) || []}
-              isLoading={activityRecommendationsMutation.isPending}
-            />
-            
-            <MusicRecommendationsCard 
-              tracks={(musicRecommendationsMutation.data?.tracks as MusicTrack[]) || []}
-              isLoading={musicRecommendationsMutation.isPending}
-            />
-          </div>
+          <RecommendationsCard 
+            activities={(recommendationsMutation.data?.activities as Activity[]) || []}
+            isLoading={recommendationsMutation.isPending}
+          />
         </>
       )}
     </motion.div>
