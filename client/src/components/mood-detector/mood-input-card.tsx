@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { SmilePlus } from "lucide-react";
 
 interface MoodInputCardProps {
   onAnalyze: (text: string) => void;
@@ -36,7 +35,7 @@ export function MoodInputCard({ onAnalyze, isLoading }: MoodInputCardProps) {
             className="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center"
             disabled={!text.trim() || isLoading}
           >
-            <SmilePlus className="h-5 w-5 mr-2" />
+            <i className="ri-emotion-happy-line mr-2"></i>
             <span>{isLoading ? "Analyzing..." : "Analyze My Mood"}</span>
           </Button>
         </form>

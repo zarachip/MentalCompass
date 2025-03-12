@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import openaiService from "@/lib/openai-service";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowRight } from "lucide-react";
 
 interface RecommendationsCardProps {
   activities: Activity[];
@@ -99,7 +98,7 @@ export function RecommendationsCard({ activities, isLoading }: RecommendationsCa
               className="text-primary hover:text-primary/80 font-medium transition-all flex items-center p-0"
             >
               <span>See more recommendations</span>
-              <ArrowRight className="h-4 w-4 ml-1" />
+              <i className="ri-arrow-right-line ml-1"></i>
             </Button>
           </div>
         </CardContent>
