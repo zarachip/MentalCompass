@@ -60,14 +60,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let chatHistory = conversation || [];
       if (!chatHistory.length) {
         const messageHistory = await storage.getMessagesByUserId(1);
-        chatHistory = messageHistory.map(msg => ({
+        chatHistory = messageHistory.map((msg: { isUser: boolean; content: string }) => ({
           role: msg.isUser ? "user" : "assistant",
           content: msg.content
         }));
       }
       
       // Add current message if not in history
-      if (!chatHistory.some(msg => msg.role === "user" && msg.content === message)) {
+      if (!chatHistory.some((msg: { role: string; content: string }) => msg.role === "user" && msg.content === message)) {
         chatHistory.push({ role: "user", content: message });
       }
       

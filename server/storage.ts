@@ -110,7 +110,7 @@ export class MemStorage implements IStorage {
     const mood: Mood = {
       ...moodData,
       id,
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     };
     this.moods.set(id, mood);
     return mood;
@@ -132,7 +132,7 @@ export class MemStorage implements IStorage {
     const message: Message = {
       ...messageData,
       id,
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     };
     this.messages.set(id, message);
     return message;
@@ -173,7 +173,7 @@ export class MemStorage implements IStorage {
     const completion: ActivityCompletion = {
       ...completionData,
       id,
-      completedAt: new Date().toISOString()
+      completedAt: new Date()
     };
     this.activityCompletions.set(id, completion);
     return completion;
@@ -195,7 +195,7 @@ export class MemStorage implements IStorage {
     const recommendation: ActivityRecommendation = {
       ...recommendationData,
       id,
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     };
     this.activityRecommendations.set(id, recommendation);
     return recommendation;
