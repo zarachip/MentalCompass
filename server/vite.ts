@@ -75,7 +75,8 @@ import path from "path";
 import fs from "fs";
 import { type Express } from "express";
 
-export function log(message: string) {
+// Using a different name to avoid conflict with the log function above
+export function logStatic(message: string) {
   console.log(`[server] ${message}`);
 }
 
