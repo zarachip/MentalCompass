@@ -203,3 +203,168 @@ export class MemStorage implements IStorage {
 }
 
 export const storage = new MemStorage();
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { neon } from '@neondatabase/serverless';
+import { insertMoodSchema, insertMessageSchema } from '@shared/schema';
+import { z } from 'zod';
+
+// Define mock data structures
+type Mood = {
+  id: number;
+  userId: number;
+  text: string;
+  sentiment: string;
+  score: number;
+  analysis: string;
+  createdAt: Date;
+};
+
+type Message = {
+  id: number;
+  userId: number;
+  content: string;
+  isUser: boolean;
+  createdAt: Date;
+};
+
+type Activity = {
+  id: number;
+  emoji: string;
+  title: string;
+  description: string;
+  category: string;
+  createdAt: Date;
+};
+
+type ActivityRecommendation = {
+  id: number;
+  userId: number;
+  moodId: number;
+  activityIds: number[];
+  createdAt: Date;
+};
+
+type ActivityCompletion = {
+  id: number;
+  userId: number;
+  activityId: number;
+  createdAt: Date;
+};
+
+// Mock data storage
+const mockData = {
+  moods: [] as Mood[],
+  messages: [] as Message[],
+  activities: [] as Activity[],
+  activityRecommendations: [] as ActivityRecommendation[],
+  activityCompletions: [] as ActivityCompletion[],
+  nextId: {
+    mood: 1,
+    message: 1,
+    activity: 1,
+    activityRecommendation: 1,
+    activityCompletion: 1,
+  },
+};
+
+// Define schema for activity creation
+const insertActivitySchema = z.object({
+  emoji: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+});
+
+// Define schema for activity recommendation creation
+const insertActivityRecommendationSchema = z.object({
+  userId: z.number(),
+  moodId: z.number(),
+  activityIds: z.array(z.number()),
+});
+
+// Define schema for activity completion
+const insertActivityCompletionSchema = z.object({
+  userId: z.number(),
+  activityId: z.number(),
+});
+
+// Storage helper functions
+export const storage = {
+  // Mood operations
+  createMood: async (data: z.infer<typeof insertMoodSchema>): Promise<Mood> => {
+    const newMood = {
+      id: mockData.nextId.mood++,
+      ...data,
+      createdAt: new Date(),
+    };
+    mockData.moods.push(newMood);
+    return newMood;
+  },
+  
+  getMood: async (id: number): Promise<Mood | undefined> => {
+    return mockData.moods.find(m => m.id === id);
+  },
+  
+  getMoodsByUserId: async (userId: number): Promise<Mood[]> => {
+    return mockData.moods.filter(m => m.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  },
+  
+  // Message operations
+  createMessage: async (data: z.infer<typeof insertMessageSchema>): Promise<Message> => {
+    const newMessage = {
+      id: mockData.nextId.message++,
+      ...data,
+      createdAt: new Date(),
+    };
+    mockData.messages.push(newMessage);
+    return newMessage;
+  },
+  
+  getMessagesByUserId: async (userId: number): Promise<Message[]> => {
+    return mockData.messages.filter(m => m.userId === userId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  },
+  
+  // Activity operations
+  createActivity: async (data: z.infer<typeof insertActivitySchema>): Promise<Activity> => {
+    const newActivity = {
+      id: mockData.nextId.activity++,
+      ...data,
+      createdAt: new Date(),
+    };
+    mockData.activities.push(newActivity);
+    return newActivity;
+  },
+  
+  getActivity: async (id: number): Promise<Activity | undefined> => {
+    return mockData.activities.find(a => a.id === id);
+  },
+  
+  // Activity recommendation operations
+  createActivityRecommendation: async (data: z.infer<typeof insertActivityRecommendationSchema>): Promise<ActivityRecommendation> => {
+    const newRecommendation = {
+      id: mockData.nextId.activityRecommendation++,
+      ...data,
+      createdAt: new Date(),
+    };
+    mockData.activityRecommendations.push(newRecommendation);
+    return newRecommendation;
+  },
+  
+  // Activity completion operations
+  createActivityCompletion: async (data: z.infer<typeof insertActivityCompletionSchema>): Promise<ActivityCompletion> => {
+    const newCompletion = {
+      id: mockData.nextId.activityCompletion++,
+      ...data,
+      createdAt: new Date(),
+    };
+    mockData.activityCompletions.push(newCompletion);
+    return newCompletion;
+  },
+  
+  getActivityCompletionsByUserId: async (userId: number): Promise<ActivityCompletion[]> => {
+    return mockData.activityCompletions.filter(c => c.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  },
+};
