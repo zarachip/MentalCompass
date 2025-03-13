@@ -1,44 +1,43 @@
-
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Activity } from "@/types";
-
-// Category types and utility functions
-type CategoryType = "All Categories" | "Social" | "Creative" | "Physical" | "Relaxation" | "Mindfulness";
-
-const CATEGORIES: CategoryType[] = [
-  "All Categories",
-  "Social",
-  "Creative",
-  "Physical", 
-  "Relaxation",
-  "Mindfulness"
-];
+import { MoodEmoji } from "@/components/ui/mood-emoji";
 
 interface ActivityCategoriesProps {
   activities: Activity[];
 }
 
+type CategoryType = "All Categories" | "Relaxation" | "Physical" | "Creative" | "Social" | "Mindfulness";
+
+const CATEGORIES: CategoryType[] = [
+  "All Categories",
+  "Relaxation",
+  "Physical", 
+  "Creative", 
+  "Social", 
+  "Mindfulness"
+];
+
 const getCategoryEmoji = (category: string): string => {
-  switch (category.toLowerCase()) {
-    case "social": return "👥";
-    case "creative": return "🎨";
-    case "physical": return "🏃‍♂️";
+  switch(category.toLowerCase()) {
     case "relaxation": return "🧘‍♀️";
-    case "mindfulness": return "🧠";
-    default: return "✨";
+    case "physical": return "🚶‍♂️";
+    case "creative": return "🎨";
+    case "social": return "👥";
+    case "mindfulness": return "✨";
+    default: return "🌟";
   }
 };
 
 const getCategoryColor = (category: string): string => {
-  switch (category.toLowerCase()) {
-    case "social": return "bg-blue-100 text-blue-800 bg-opacity-20";
-    case "creative": return "bg-purple-100 text-purple-800 bg-opacity-20";
-    case "physical": return "bg-green-100 text-green-800 bg-opacity-20";
-    case "relaxation": return "bg-yellow-100 text-yellow-800 bg-opacity-20";
-    case "mindfulness": return "bg-indigo-100 text-indigo-800 bg-opacity-20";
-    default: return "bg-gray-100 text-gray-800 bg-opacity-20";
+  switch(category.toLowerCase()) {
+    case "relaxation": return "bg-[#5F9EA0] bg-opacity-20";
+    case "physical": return "bg-[#FF7F50] bg-opacity-20";
+    case "creative": return "bg-[#6A5ACD] bg-opacity-20";
+    case "social": return "bg-[#FFD700] bg-opacity-20";
+    case "mindfulness": return "bg-[#4CAF50] bg-opacity-20";
+    default: return "bg-primary-light bg-opacity-20";
   }
 };
 

@@ -1,16 +1,13 @@
 import React from "react";
-import { Link } from "wouter";
 
 export function Header() {
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-10">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/">
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <span className="text-primary text-2xl">🧠</span>
-            <h1 className="text-xl font-semibold text-neutral-900">MoodMate</h1>
-          </div>
-        </Link>
+        <div className="flex items-center space-x-2">
+          <span className="text-primary text-2xl">🧠</span>
+          <h1 className="text-xl font-semibold text-neutral-900">MoodMate</h1>
+        </div>
         <div className="flex items-center space-x-4">
           <button className="text-neutral-600 hover:text-primary transition-all" aria-label="Notifications">
             <i className="ri-notification-3-line text-xl"></i>
