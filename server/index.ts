@@ -26,8 +26,8 @@ app.use(
 );
 
 // Import and use routes
-import { setupRoutes } from "./routes";
-const httpServer = await setupRoutes(app);
+import { registerRoutes } from "./routes.js";
+const httpServer = await registerRoutes(app);
 
 // Development mode
 if (process.env.NODE_ENV !== "production") {
@@ -48,6 +48,7 @@ if (process.env.NODE_ENV !== "production") {
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, "0.0.0.0", () => {
   log(`Server running on port ${PORT}`);
+  log(`Server accessible at http://0.0.0.0:${PORT}`);
 });
 
 export default httpServer;
