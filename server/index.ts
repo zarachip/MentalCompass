@@ -26,8 +26,8 @@ app.use(
 );
 
 // Import and use routes
-import { setupRoutes } from "./routes.js";
-const httpServer = await setupRoutes(app);
+import { registerRoutes } from "./routes.ts";
+const httpServer = await registerRoutes(app);
 
 // Development mode
 if (process.env.NODE_ENV !== "production") {
