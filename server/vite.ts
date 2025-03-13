@@ -70,6 +70,15 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+import express from "express";
+import path from "path";
+import fs from "fs";
+import { type Express } from "express";
+
+export function log(message: string) {
+  console.log(`[server] ${message}`);
+}
+
 export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "public");
 

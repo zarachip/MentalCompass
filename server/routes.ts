@@ -9,7 +9,7 @@ import {
 import * as openai from "./lib/openai";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function setupRoutes(app: Express): Promise<Server> {
   // Mood analysis endpoint
   app.post("/api/mood/analyze", async (req, res) => {
     try {
@@ -18,47 +18,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!text || typeof text !== "string") {
         return res.status(400).json({ error: "Text is required" });
       }
-      
-      // Check if OpenAI API key is set
-      if (!process.env.OPENAI_API_KEY) {
-        console.error("OpenAI API key is not set");
-        return res.status(500).json({ error: "OpenAI API key is missing" });
-      }
 
-      try {
-        const result = await openai.analyzeSentiment(text);
-        
-        // Store mood in database (with dummy userId for now)
-        const mood = await storage.createMood({
-          userId: 1, // Using default user ID since we don't have auth yet
-          text,
-          sentiment: result.sentiment,
-          score: result.score,
-          analysis: result.analysis,
-        });
-        
-        return res.json({
-          mood,
-          keywords: result.keywords
-        });
-      } catch (openaiError: any) {
-        console.error("OpenAI API error:", openaiError.message);
-        
-        // Create a fallback mood analysis for UI to display
-        const mood = await storage.createMood({
-          userId: 1,
-          text,
-          sentiment: "neutral",
-          score: 3,
-          analysis: "I'm having trouble analyzing your mood right now. Please try again later.",
-        });
-        
-        return res.json({
-          mood,
-          keywords: ["mood", "analysis", "unavailable"],
-          error: openaiError.message
-        });
-      }
+      const result = await openai.analyzeSentiment(text);
+      
+      // Store mood in database (with dummy userId for now)
+      const mood = await storage.createMood({
+        userId: 1, // Using default user ID since we don't have auth yet
+        text,
+        sentiment: result.sentiment,
+        score: result.score,
+        analysis: result.analysis,
+      });
+      
+      return res.json({
+        mood,
+        keywords: result.keywords
+      });
     } catch (error: any) {
       console.error("Error analyzing mood:", error.message);
       return res.status(500).json({ error: "Failed to analyze mood" });
@@ -74,12 +49,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Message is required" });
       }
       
-      // Check if OpenAI API key is set
-      if (!process.env.OPENAI_API_KEY) {
-        console.error("OpenAI API key is not set");
-        return res.status(500).json({ error: "OpenAI API key is missing" });
-      }
-      
       // Store user message
       const userMessage = await storage.createMessage({
         userId: 1, // Using default user ID
@@ -91,46 +60,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let chatHistory = conversation || [];
       if (!chatHistory.length) {
         const messageHistory = await storage.getMessagesByUserId(1);
-        chatHistory = messageHistory.map((msg: { isUser: boolean; content: string }) => ({
+        chatHistory = messageHistory.map(msg => ({
           role: msg.isUser ? "user" : "assistant",
           content: msg.content
         }));
       }
       
       // Add current message if not in history
-      if (!chatHistory.some((msg: { role: string; content: string }) => msg.role === "user" && msg.content === message)) {
+      if (!chatHistory.some(msg => msg.role === "user" && msg.content === message)) {
         chatHistory.push({ role: "user", content: message });
       }
       
-      try {
-        // Get response from OpenAI
-        const response = await openai.getChatResponse(chatHistory);
-        
-        // Store AI response
-        const aiMessage = await storage.createMessage({
-          userId: 1,
-          content: response,
-          isUser: false,
-        });
-        
-        return res.json({
-          message: aiMessage
-        });
-      } catch (openaiError: any) {
-        console.error("OpenAI API error:", openaiError.message);
-        
-        // Store error message
-        const errorMessage = await storage.createMessage({
-          userId: 1,
-          content: "I'm having trouble connecting to my AI brain right now. Please try again later.",
-          isUser: false,
-        });
-        
-        return res.json({
-          message: errorMessage,
-          error: openaiError.message
-        });
-      }
+      // Get response from OpenAI
+      const response = await openai.getChatResponse(chatHistory);
+      
+      // Store AI response
+      const aiMessage = await storage.createMessage({
+        userId: 1,
+        content: response,
+        isUser: false,
+      });
+      
+      return res.json({
+        message: aiMessage
+      });
     } catch (error: any) {
       console.error("Error in chat:", error.message);
       return res.status(500).json({ error: "Failed to process chat message" });
@@ -236,102 +189,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error getting completed activities:", error.message);
       return res.status(500).json({ error: "Failed to get completed activities" });
-    }
-  });
-
-  // Get music recommendations based on mood
-  app.post("/api/music/recommendations", async (req, res) => {
-    try {
-      const { moodId } = req.body;
-      
-      if (!moodId) {
-        return res.status(400).json({ error: "Mood ID is required" });
-      }
-
-      // Get mood data
-      const mood = await storage.getMood(moodId);
-      if (!mood) {
-        return res.status(404).json({ error: "Mood not found" });
-      }
-      
-      // Check if OpenAI API key is set
-      if (!process.env.OPENAI_API_KEY) {
-        console.error("OpenAI API key is not set");
-        
-        // Get music tracks based on the mood without AI
-        const tracks = await storage.getMusicTracksByMood(mood.sentiment);
-        
-        // Create music recommendation entry
-        const trackIds = tracks.map(track => track.id);
-        await storage.createMusicRecommendation({
-          userId: 1,
-          moodId,
-          trackIds,
-        });
-        
-        return res.json({ tracks });
-      }
-      
-      try {
-        // Get recommendations from OpenAI
-        const recommendations = await openai.getMusicRecommendations(
-          mood.sentiment,
-          mood.text
-        );
-        
-        // Store recommended tracks
-        const tracks = [];
-        for (const rec of recommendations) {
-          const track = await storage.createMusicTrack({
-            title: rec.title,
-            artist: rec.artist,
-            genre: rec.genre,
-            mood: rec.mood,
-            imageUrl: null, // Would need an API to get real images
-            externalUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(rec.title + ' ' + rec.artist)}`
-          });
-          tracks.push(track);
-        }
-        
-        // Store recommendation group
-        const trackIds = tracks.map(t => t.id);
-        await storage.createMusicRecommendation({
-          userId: 1,
-          moodId,
-          trackIds,
-        });
-        
-        return res.json({ tracks });
-      } catch (openaiError: any) {
-        console.error("OpenAI API error:", openaiError.message);
-        
-        // Get music tracks based on the mood as fallback
-        const tracks = await storage.getMusicTracksByMood(mood.sentiment);
-        
-        // Create music recommendation entry
-        const trackIds = tracks.map(track => track.id);
-        await storage.createMusicRecommendation({
-          userId: 1,
-          moodId,
-          trackIds,
-        });
-        
-        return res.json({ tracks, error: openaiError.message });
-      }
-    } catch (error: any) {
-      console.error("Error getting music recommendations:", error.message);
-      return res.status(500).json({ error: "Failed to get music recommendations" });
-    }
-  });
-  
-  // Get all music tracks
-  app.get("/api/music/tracks", async (req, res) => {
-    try {
-      const tracks = await storage.getAllMusicTracks();
-      return res.json({ tracks });
-    } catch (error: any) {
-      console.error("Error getting music tracks:", error.message);
-      return res.status(500).json({ error: "Failed to get music tracks" });
     }
   });
 
