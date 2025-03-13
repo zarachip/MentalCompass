@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocation, Link } from "wouter";
-import { cn } from "@/lib/utils";
 import { TabItem } from "@/types";
 
 const tabs: TabItem[] = [
@@ -42,6 +41,7 @@ export function TabNavigation() {
   );
 }
 
+
 // Landing page component
 export function LandingPage() {
   return (
@@ -49,9 +49,9 @@ export function LandingPage() {
       <h1 className="text-4xl font-bold mb-4">Welcome to MoodMate!</h1>
       <p className="text-lg mb-8">Your AI companion for managing your mood.</p>
       <Link href="/">
-        <button className="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700">
+        <span className="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 inline-block cursor-pointer">
           Get Started
-        </button>
+        </span>
       </Link>
     </div>
   );
