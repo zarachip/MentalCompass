@@ -1,14 +1,11 @@
 import {
   users, moods, messages, activities, activityCompletions, activityRecommendations,
-  musicTracks, musicRecommendations,
   type User, type InsertUser, 
   type Mood, type InsertMood,
   type Message, type InsertMessage,
   type Activity, type InsertActivity,
   type ActivityCompletion, type InsertActivityCompletion,
-  type ActivityRecommendation, type InsertActivityRecommendation,
-  type MusicTrack, type InsertMusicTrack,
-  type MusicRecommendation, type InsertMusicRecommendation
+  type ActivityRecommendation, type InsertActivityRecommendation
 } from "@shared/schema";
 
 export interface IStorage {
@@ -41,17 +38,6 @@ export interface IStorage {
   getActivityRecommendation(id: number): Promise<ActivityRecommendation | undefined>;
   getActivityRecommendationsByUserId(userId: number): Promise<ActivityRecommendation[]>;
   createActivityRecommendation(recommendation: InsertActivityRecommendation): Promise<ActivityRecommendation>;
-  
-  // Music track methods
-  getMusicTrack(id: number): Promise<MusicTrack | undefined>;
-  getMusicTracksByMood(mood: string): Promise<MusicTrack[]>;
-  getAllMusicTracks(): Promise<MusicTrack[]>;
-  createMusicTrack(track: InsertMusicTrack): Promise<MusicTrack>;
-  
-  // Music recommendation methods
-  getMusicRecommendation(id: number): Promise<MusicRecommendation | undefined>;
-  getMusicRecommendationsByUserId(userId: number): Promise<MusicRecommendation[]>;
-  createMusicRecommendation(recommendation: InsertMusicRecommendation): Promise<MusicRecommendation>;
 }
 
 export class MemStorage implements IStorage {
@@ -61,16 +47,12 @@ export class MemStorage implements IStorage {
   private activities: Map<number, Activity>;
   private activityCompletions: Map<number, ActivityCompletion>;
   private activityRecommendations: Map<number, ActivityRecommendation>;
-  private musicTracks: Map<number, MusicTrack>;
-  private musicRecommendations: Map<number, MusicRecommendation>;
   private userIdCounter: number;
   private moodIdCounter: number;
   private messageIdCounter: number;
   private activityIdCounter: number;
   private activityCompletionIdCounter: number;
   private activityRecommendationIdCounter: number;
-  private musicTrackIdCounter: number;
-  private musicRecommendationIdCounter: number;
 
   constructor() {
     this.users = new Map();
@@ -79,8 +61,6 @@ export class MemStorage implements IStorage {
     this.activities = new Map();
     this.activityCompletions = new Map();
     this.activityRecommendations = new Map();
-    this.musicTracks = new Map();
-    this.musicRecommendations = new Map();
     
     this.userIdCounter = 1;
     this.moodIdCounter = 1;
@@ -88,59 +68,11 @@ export class MemStorage implements IStorage {
     this.activityIdCounter = 1;
     this.activityCompletionIdCounter = 1;
     this.activityRecommendationIdCounter = 1;
-    this.musicTrackIdCounter = 1;
-    this.musicRecommendationIdCounter = 1;
     
     // Create a default user
     this.createUser({
       username: "default",
       password: "password"
-    });
-    
-    // Initialize some default music tracks
-    this.createMusicTrack({
-      title: "Happy",
-      artist: "Pharrell Williams",
-      genre: "Pop",
-      mood: "happy",
-      imageUrl: "https://i.scdn.co/image/ab67616d0000b2734c9155bd4737b376d66f6d60",
-      externalUrl: "https://www.youtube.com/watch?v=ZbZSe6N_BXs"
-    });
-    
-    this.createMusicTrack({
-      title: "Don't Worry, Be Happy",
-      artist: "Bobby McFerrin",
-      genre: "Pop",
-      mood: "happy",
-      imageUrl: "https://i.scdn.co/image/ab67616d0000b273b000f34a929ab207bfca1e9e",
-      externalUrl: "https://www.youtube.com/watch?v=d-diB65scQU"
-    });
-    
-    this.createMusicTrack({
-      title: "Weightless",
-      artist: "Marconi Union",
-      genre: "Ambient",
-      mood: "calm",
-      imageUrl: "https://i.scdn.co/image/ab67616d0000b273d0afdcdb6e990f27693f0c98",
-      externalUrl: "https://www.youtube.com/watch?v=UfcAVejslrU"
-    });
-    
-    this.createMusicTrack({
-      title: "Someone Like You",
-      artist: "Adele",
-      genre: "Pop",
-      mood: "sad",
-      imageUrl: "https://i.scdn.co/image/ab67616d0000b273fe4cbed0da5240de3dd69991",
-      externalUrl: "https://www.youtube.com/watch?v=hLQl3WQQoQ0"
-    });
-    
-    this.createMusicTrack({
-      title: "Breathe",
-      artist: "Télépopmusik",
-      genre: "Electronic",
-      mood: "anxious",
-      imageUrl: "https://i.scdn.co/image/ab67616d0000b273d40b993af88c5122e41522d4",
-      externalUrl: "https://www.youtube.com/watch?v=vyut3GyQtn0"
     });
   }
 
@@ -176,13 +108,9 @@ export class MemStorage implements IStorage {
   async createMood(moodData: InsertMood): Promise<Mood> {
     const id = this.moodIdCounter++;
     const mood: Mood = {
+      ...moodData,
       id,
-      userId: moodData.userId || null,
-      text: moodData.text,
-      sentiment: moodData.sentiment,
-      score: moodData.score,
-      analysis: moodData.analysis || null,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     };
     this.moods.set(id, mood);
     return mood;
@@ -202,11 +130,9 @@ export class MemStorage implements IStorage {
   async createMessage(messageData: InsertMessage): Promise<Message> {
     const id = this.messageIdCounter++;
     const message: Message = {
+      ...messageData,
       id,
-      userId: messageData.userId || null,
-      content: messageData.content,
-      isUser: messageData.isUser,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     };
     this.messages.set(id, message);
     return message;
@@ -245,10 +171,9 @@ export class MemStorage implements IStorage {
   async createActivityCompletion(completionData: InsertActivityCompletion): Promise<ActivityCompletion> {
     const id = this.activityCompletionIdCounter++;
     const completion: ActivityCompletion = {
+      ...completionData,
       id,
-      userId: completionData.userId || null,
-      activityId: completionData.activityId || null,
-      completedAt: new Date()
+      completedAt: new Date().toISOString()
     };
     this.activityCompletions.set(id, completion);
     return completion;
@@ -268,66 +193,11 @@ export class MemStorage implements IStorage {
   async createActivityRecommendation(recommendationData: InsertActivityRecommendation): Promise<ActivityRecommendation> {
     const id = this.activityRecommendationIdCounter++;
     const recommendation: ActivityRecommendation = {
+      ...recommendationData,
       id,
-      userId: recommendationData.userId || null,
-      moodId: recommendationData.moodId || null,
-      activityIds: Array.isArray(recommendationData.activityIds) ? recommendationData.activityIds : [],
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     };
     this.activityRecommendations.set(id, recommendation);
-    return recommendation;
-  }
-  
-  // Music track methods
-  async getMusicTrack(id: number): Promise<MusicTrack | undefined> {
-    return this.musicTracks.get(id);
-  }
-  
-  async getMusicTracksByMood(mood: string): Promise<MusicTrack[]> {
-    return Array.from(this.musicTracks.values())
-      .filter(track => track.mood.toLowerCase() === mood.toLowerCase());
-  }
-  
-  async getAllMusicTracks(): Promise<MusicTrack[]> {
-    return Array.from(this.musicTracks.values());
-  }
-  
-  async createMusicTrack(trackData: InsertMusicTrack): Promise<MusicTrack> {
-    const id = this.musicTrackIdCounter++;
-    const track: MusicTrack = {
-      id,
-      title: trackData.title,
-      artist: trackData.artist,
-      genre: trackData.genre,
-      mood: trackData.mood,
-      imageUrl: trackData.imageUrl || null,
-      externalUrl: trackData.externalUrl || null
-    };
-    this.musicTracks.set(id, track);
-    return track;
-  }
-  
-  // Music recommendation methods
-  async getMusicRecommendation(id: number): Promise<MusicRecommendation | undefined> {
-    return this.musicRecommendations.get(id);
-  }
-  
-  async getMusicRecommendationsByUserId(userId: number): Promise<MusicRecommendation[]> {
-    return Array.from(this.musicRecommendations.values())
-      .filter(recommendation => recommendation.userId === userId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }
-  
-  async createMusicRecommendation(recommendationData: InsertMusicRecommendation): Promise<MusicRecommendation> {
-    const id = this.musicRecommendationIdCounter++;
-    const recommendation: MusicRecommendation = {
-      id,
-      userId: recommendationData.userId || null,
-      moodId: recommendationData.moodId || null,
-      trackIds: Array.isArray(recommendationData.trackIds) ? recommendationData.trackIds : [],
-      createdAt: new Date()
-    };
-    this.musicRecommendations.set(id, recommendation);
     return recommendation;
   }
 }

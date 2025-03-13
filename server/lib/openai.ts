@@ -1,16 +1,7 @@
 import OpenAI from "openai";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
-
-// Log if OpenAI API key is not set or invalid format
-if (!process.env.OPENAI_API_KEY) {
-  console.error("WARNING: OPENAI_API_KEY environment variable is not set");
-} else if (process.env.OPENAI_API_KEY.length < 20) {
-  console.error("WARNING: OPENAI_API_KEY appears to be invalid (too short)");
-}
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 
 export interface SentimentAnalysisResult {
   sentiment: string;
@@ -141,81 +132,8 @@ export async function getActivityRecommendations(
   }
 }
 
-export async function getMusicRecommendations(
-  mood: string,
-  moodText: string
-): Promise<{ title: string; artist: string; genre: string; mood: string }[]> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a music therapy assistant that recommends personalized music based on mood. " +
-            "Provide 3 music recommendations in JSON format as an array of objects with these fields: " +
-            "1. title (song title) " +
-            "2. artist (artist name) " +
-            "3. genre (genre of music) " +
-            "4. mood (one of: happy, sad, anxious, calm, neutral) representing the mood of the song",
-        },
-        {
-          role: "user",
-          content: `The user is feeling ${mood}. Here's what they wrote: "${moodText}". Please suggest appropriate music to help with this mood.`,
-        },
-      ],
-      response_format: { type: "json_object" },
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    
-    if (Array.isArray(result.recommendations)) {
-      return result.recommendations.slice(0, 3);
-    } else {
-      // Fallback based on mood
-      const fallbackRecommendations = {
-        happy: [
-          { title: "Happy", artist: "Pharrell Williams", genre: "Pop", mood: "happy" },
-          { title: "Don't Worry Be Happy", artist: "Bobby McFerrin", genre: "Pop", mood: "happy" },
-          { title: "Good Vibrations", artist: "The Beach Boys", genre: "Pop", mood: "happy" }
-        ],
-        sad: [
-          { title: "Someone Like You", artist: "Adele", genre: "Pop", mood: "sad" },
-          { title: "Hurt", artist: "Johnny Cash", genre: "Country", mood: "sad" },
-          { title: "Fix You", artist: "Coldplay", genre: "Rock", mood: "sad" }
-        ],
-        anxious: [
-          { title: "Breathe", artist: "Télépopmusik", genre: "Electronic", mood: "anxious" },
-          { title: "Weightless", artist: "Marconi Union", genre: "Ambient", mood: "calm" },
-          { title: "Clair de Lune", artist: "Claude Debussy", genre: "Classical", mood: "calm" }
-        ],
-        calm: [
-          { title: "Weightless", artist: "Marconi Union", genre: "Ambient", mood: "calm" },
-          { title: "Gymnopédie No.1", artist: "Erik Satie", genre: "Classical", mood: "calm" },
-          { title: "Watermark", artist: "Enya", genre: "New Age", mood: "calm" }
-        ],
-        neutral: [
-          { title: "Here Comes the Sun", artist: "The Beatles", genre: "Rock", mood: "happy" },
-          { title: "Clocks", artist: "Coldplay", genre: "Rock", mood: "neutral" },
-          { title: "Africa", artist: "Toto", genre: "Pop", mood: "neutral" }
-        ]
-      };
-      
-      return fallbackRecommendations[mood as keyof typeof fallbackRecommendations] || fallbackRecommendations.neutral;
-    }
-  } catch (error: any) {
-    console.error("Error getting music recommendations:", error.message);
-    return [
-      { title: "Happy", artist: "Pharrell Williams", genre: "Pop", mood: "happy" },
-      { title: "Weightless", artist: "Marconi Union", genre: "Ambient", mood: "calm" },
-      { title: "Here Comes the Sun", artist: "The Beatles", genre: "Rock", mood: "happy" }
-    ];
-  }
-}
-
 export default {
   analyzeSentiment,
   getChatResponse,
   getActivityRecommendations,
-  getMusicRecommendations,
 };
