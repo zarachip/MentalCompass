@@ -1,24 +1,15 @@
 
-import { useNavigate } from "wouter";
-import { motion } from "framer-motion";
+import React from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
-  const [_, navigate] = useNavigate();
-
+  const [_, navigate] = useLocation();
+  
   return (
-    <motion.div 
-      className="flex flex-col items-center justify-center min-h-[85vh] text-center px-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="mb-8">
-        <span className="text-6xl mb-4 inline-block">🧠</span>
-        <h1 className="text-4xl font-bold text-neutral-900 mb-2">MoodMate</h1>
-        <p className="text-xl text-neutral-600 mb-6">Your AI-powered mental health companion</p>
-      </div>
-
+    <div className="container mx-auto p-8 flex flex-col items-center">
+      <h1 className="text-4xl font-bold mb-4">MoodMate</h1>
+      
       <div className="max-w-md mb-12">
         <p className="text-neutral-700 mb-4">
           Track your emotions, get personalized activities, and chat with an AI that helps you navigate your mental well-being journey.
@@ -60,6 +51,6 @@ export default function LandingPage() {
       <p className="text-neutral-500 text-sm mt-8">
         Your mental health data stays private and secure
       </p>
-    </motion.div>
+    </div>
   );
 }

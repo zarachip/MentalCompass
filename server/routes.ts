@@ -9,7 +9,7 @@ import {
 import * as openai from "./lib/openai";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function setupRoutes(app: Express): Promise<Server> {
   // Mood analysis endpoint
   app.post("/api/mood/analyze", async (req, res) => {
     try {
