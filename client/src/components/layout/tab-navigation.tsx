@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, Link } from "wouter";
+import { cn } from "@/lib/utils";
 import { TabItem } from "@/types";
 
 const tabs: TabItem[] = [
@@ -35,55 +36,6 @@ export function TabNavigation() {
               </li>
             );
           })}
-        </ul>
-      </div>
-    </nav>
-  );
-}
-
-
-import React from "react";
-import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
-
-interface TabItem {
-  id: string;
-  label: string;
-  icon: string;
-  href: string;
-}
-
-export function TabNavigation() {
-  const [location] = useLocation();
-  
-  const tabs: TabItem[] = [
-    { id: 'mood', label: 'Mood Tracker', icon: '😊', href: '/mood' },
-    { id: 'chat', label: 'Chat', icon: '💬', href: '/chat' },
-    { id: 'activities', label: 'Activities', icon: '🏃‍♂️', href: '/activities' },
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', href: '/dashboard' }
-  ];
-
-  return (
-    <nav className="bg-white border-b border-gray-200 py-3 px-4">
-      <div className="container mx-auto">
-        <ul className="flex space-x-6">
-          {tabs.map((tab) => (
-            <li key={tab.id}>
-              {/* Use div with onClick instead of nested links */}
-              <div 
-                onClick={() => window.location.href = tab.href}
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md cursor-pointer",
-                  location === tab.href 
-                    ? "bg-primary/10 text-primary font-medium" 
-                    : "text-gray-600 hover:text-primary hover:bg-gray-100"
-                )}
-              >
-                <span className="mr-2">{tab.icon}</span>
-                <span>{tab.label}</span>
-              </div>
-            </li>
-          ))}
         </ul>
       </div>
     </nav>
