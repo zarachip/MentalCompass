@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { TabItem } from "@/types";
 
 const tabs: TabItem[] = [
-  { id: "/", label: "Mood Detector", icon: "ri-emotion-line" },
+  { id: "/mood-detector", label: "Mood Detector", icon: "ri-emotion-line" },
   { id: "/chat", label: "AI Chat", icon: "ri-message-3-line" },
   { id: "/activities", label: "Mood Booster", icon: "ri-heart-pulse-line" },
   { id: "/dashboard", label: "Dashboard", icon: "ri-bar-chart-box-line" },
@@ -38,21 +38,5 @@ export function TabNavigation() {
         </ul>
       </div>
     </nav>
-  );
-}
-
-
-// Landing page component
-export function LandingPage() {
-  return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold mb-4">Welcome to MoodMate!</h1>
-      <p className="text-lg mb-8">Your AI companion for managing your mood.</p>
-      <Link href="/">
-        <button className="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700">
-          Get Started
-        </button>
-      </Link>
-    </div>
   );
 }

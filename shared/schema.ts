@@ -87,6 +87,41 @@ export const insertActivityRecommendationSchema = createInsertSchema(activityRec
   activityIds: true,
 });
 
+// Music table
+export const musicTracks = pgTable("music_tracks", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  artist: text("artist").notNull(),
+  genre: text("genre").notNull(),
+  mood: text("mood").notNull(), // happy, sad, anxious, calm, neutral, etc.
+  imageUrl: text("image_url"), // URL for album art or thumbnail
+  externalUrl: text("external_url"), // URL to play the music (e.g., Spotify, YouTube)
+});
+
+export const insertMusicTrackSchema = createInsertSchema(musicTracks).pick({
+  title: true,
+  artist: true,
+  genre: true,
+  mood: true,
+  imageUrl: true,
+  externalUrl: true,
+});
+
+// Music recommendations table
+export const musicRecommendations = pgTable("music_recommendations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  moodId: integer("mood_id").references(() => moods.id),
+  trackIds: json("track_ids").$type<number[]>().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMusicRecommendationSchema = createInsertSchema(musicRecommendations).pick({
+  userId: true,
+  moodId: true,
+  trackIds: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -105,3 +140,9 @@ export type InsertActivityCompletion = z.infer<typeof insertActivityCompletionSc
 
 export type ActivityRecommendation = typeof activityRecommendations.$inferSelect;
 export type InsertActivityRecommendation = z.infer<typeof insertActivityRecommendationSchema>;
+
+export type MusicTrack = typeof musicTracks.$inferSelect;
+export type InsertMusicTrack = z.infer<typeof insertMusicTrackSchema>;
+
+export type MusicRecommendation = typeof musicRecommendations.$inferSelect;
+export type InsertMusicRecommendation = z.infer<typeof insertMusicRecommendationSchema>;

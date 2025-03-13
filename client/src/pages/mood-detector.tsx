@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { MoodInputCard } from "@/components/mood-detector/mood-input-card";
 import { MoodResultCard } from "@/components/mood-detector/mood-result-card";
 import { RecommendationsCard } from "@/components/mood-detector/recommendations-card";
+import { MusicRecommendationsCard } from "@/components/mood-detector/music-recommendations-card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import openaiService from "@/lib/openai-service";
-import { MoodWithKeywords, Activity } from "@/types";
+import { getMusicRecommendations } from "@/lib/music-service";
+import { MoodWithKeywords, Activity, MusicTrack } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
@@ -24,6 +26,9 @@ export default function MoodDetector() {
       
       // Get recommendations for this mood
       recommendationsMutation.mutate(data.mood.id);
+      
+      // Get music recommendations for this mood
+      musicRecommendationsMutation.mutate(data.mood.id);
     },
     onError: () => {
       toast({
@@ -34,9 +39,14 @@ export default function MoodDetector() {
     }
   });
   
-  // Mutation for getting recommendations
+  // Mutation for getting activity recommendations
   const recommendationsMutation = useMutation({
     mutationFn: openaiService.getActivityRecommendations,
+  });
+  
+  // Mutation for getting music recommendations
+  const musicRecommendationsMutation = useMutation({
+    mutationFn: getMusicRecommendations,
   });
   
   const handleAnalyzeMood = (text: string) => {
@@ -63,10 +73,17 @@ export default function MoodDetector() {
         <>
           <MoodResultCard mood={currentMood} />
           
-          <RecommendationsCard 
-            activities={(recommendationsMutation.data?.activities as Activity[]) || []}
-            isLoading={recommendationsMutation.isPending}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <RecommendationsCard 
+              activities={(recommendationsMutation.data?.activities as Activity[]) || []}
+              isLoading={recommendationsMutation.isPending}
+            />
+            
+            <MusicRecommendationsCard 
+              tracks={(musicRecommendationsMutation.data?.tracks as MusicTrack[]) || []}
+              isLoading={musicRecommendationsMutation.isPending}
+            />
+          </div>
         </>
       )}
     </motion.div>
