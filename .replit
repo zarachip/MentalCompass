@@ -14,6 +14,7 @@ localPort = 5000
 externalPort = 5000
 
 [workflows]
+runButton = "Start application"
 
 [[workflows.workflow]]
 name = "Project"
@@ -27,7 +28,7 @@ args = "Start application"
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
-mode = "parallel"
+mode = "sequential"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
