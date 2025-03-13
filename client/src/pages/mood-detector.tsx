@@ -1,12 +1,25 @@
-import React, { useState } from "react";
-import { MoodInputCard } from "@/components/mood-detector/mood-input-card";
-import { MoodResultCard } from "@/components/mood-detector/mood-result-card";
-import { RecommendationsCard } from "@/components/mood-detector/recommendations-card";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import openaiService from "@/lib/openai-service";
-import { MoodWithKeywords, Activity } from "@/types";
-import { useToast } from "@/hooks/use-toast";
+
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { useToast } from "@/components/ui/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import openaiService, { Activity, MusicTrack, getMusicRecommendations } from "@/lib/ai-service";
+import { MoodInputCard } from "@/components/mood-detector/MoodInputCard";
+import { MoodResultCard } from "@/components/mood-detector/MoodResultCard";
+import { RecommendationsCard } from "@/components/mood-detector/RecommendationsCard";
+import { MusicRecommendationsCard } from "@/components/mood-detector/MusicRecommendationsCard";
+import { MoveRight } from "lucide-react";
+
+interface MoodWithKeywords {
+  mood: {
+    id: string;
+    name: string;
+    emoji: string;
+    intensity: number;
+    color: string;
+  };
+  keywords: string[];
+}
 
 export default function MoodDetector() {
   const [currentMood, setCurrentMood] = useState<MoodWithKeywords | null>(null);
@@ -24,6 +37,9 @@ export default function MoodDetector() {
       
       // Get recommendations for this mood
       recommendationsMutation.mutate(data.mood.id);
+      
+      // Get music recommendations for this mood
+      musicRecommendationsMutation.mutate(data.mood.id);
     },
     onError: () => {
       toast({
@@ -34,9 +50,14 @@ export default function MoodDetector() {
     }
   });
   
-  // Mutation for getting recommendations
+  // Mutation for getting activity recommendations
   const recommendationsMutation = useMutation({
     mutationFn: openaiService.getActivityRecommendations,
+  });
+  
+  // Mutation for getting music recommendations
+  const musicRecommendationsMutation = useMutation({
+    mutationFn: getMusicRecommendations,
   });
   
   const handleAnalyzeMood = (text: string) => {
@@ -51,9 +72,11 @@ export default function MoodDetector() {
     >
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-neutral-900">How are you feeling today?</h2>
-        <p className="text-neutral-600 mt-1">Share your thoughts, and I'll analyze your mood.</p>
+        <p className="text-muted-foreground">
+          Share your thoughts and feelings, and I'll help you understand your mood.
+        </p>
       </div>
-
+      
       <MoodInputCard 
         onAnalyze={handleAnalyzeMood} 
         isLoading={moodMutation.isPending} 
@@ -63,10 +86,17 @@ export default function MoodDetector() {
         <>
           <MoodResultCard mood={currentMood} />
           
-          <RecommendationsCard 
-            activities={(recommendationsMutation.data?.activities as Activity[]) || []}
-            isLoading={recommendationsMutation.isPending}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <RecommendationsCard 
+              activities={(recommendationsMutation.data?.activities as Activity[]) || []}
+              isLoading={recommendationsMutation.isPending}
+            />
+            
+            <MusicRecommendationsCard 
+              tracks={(musicRecommendationsMutation.data?.tracks as MusicTrack[]) || []}
+              isLoading={musicRecommendationsMutation.isPending}
+            />
+          </div>
         </>
       )}
     </motion.div>
